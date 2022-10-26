@@ -100,9 +100,21 @@ module.exports = (cat, id, res) => {
 				if (!cast_name) {
 					cast_name = i.name;
 				}
-				cast.push(cast_name);
+				cast.push({
+					name: cast_name,
+					character: i.character
+				});
 			}
 			
+			let castinfo = [];
+			for (i of cast) {
+				if (i.character) {
+					castinfo.push(`${i.name} 饰 ${i.character}`);
+				} else {
+					castinfo.push(i.name);
+				}
+			}
+
 			let info = `[img]${poster}[/img]
 [size=3]
 [b]${name} ${ori_name} (${year})[/b]
@@ -113,7 +125,7 @@ module.exports = (cat, id, res) => {
 上映   ${date}
 片长   ${runtime} 分钟
 IMDb  ${imdb}
-演员   ${cast.join('\n          ')}
+演员   ${castinfo.join('\n          ')}
 
 ${des}
 [/size]`
@@ -221,7 +233,19 @@ ${des}
 				if (!cast_name) {
 					cast_name = i.name;
 				}
-				cast.push(cast_name);
+				cast.push({
+					name: cast_name,
+					character: i.character
+				});
+			}
+
+			let castinfo = [];
+			for (i of cast) {
+				if (i.character) {
+					castinfo.push(`${i.name} 饰 ${i.character}`);
+				} else {
+					castinfo.push(i.name);
+				}
 			}
 
 			let info = `[size=3]
@@ -233,7 +257,7 @@ ${des}
 网络	 ${network}
 首播   ${date}
 IMDb  ${imdb}
-演员   ${cast.join('\n          ')}
+演员   ${castinfo.join('\n          ')}
 
 ${des}
 [/size]`
