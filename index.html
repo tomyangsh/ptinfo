@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>PT Gen</title>
+  <style type="text/css">
+    body {
+      max-width: 800px;
+      margin: 0px auto;
+      padding: 25px 5%;
+      line-height: 1.35;
+    }
+
+    #search_input {
+      width: 600px;
+      border: 1px solid #ccc;
+    }
+
+    hr {
+      margin-top: 20px;
+      margin-bottom: 20px;
+      border: 0;
+      border-top: 1px solid #eeeeee;
+    }
+
+    textarea {
+      width: 100%;
+      border: 1px solid #ccc;
+    }
+
+    img {
+      height: 200px
+    }
+
+    .zero-clipboard {
+      position:relative
+    }
+
+    .btn-clipboard {
+      position:absolute;
+      top:8px;
+      right:21px;
+      z-index:10;
+      display:block;
+      padding:5px 8px;
+      cursor:pointer;
+    }
+  </style>
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.0/dist/clipboard.min.js" integrity="sha256-meF2HJJ2Tcruwz3z4XcxYDRMxKprjdruBHc3InmixCQ=" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div>
+    <input id="search_input" placeholder="请输入关键字">
+    <input id="search_button" type="button" onclick="search()" value=搜索>
+  </div>
+  <hr>
+  <div id="result">
+  </div> 
+  </div> 
+  <script>
+    new ClipboardJS('.btn-clipboard');
+    
+    let xhttp  = new XMLHttpRequest();
+
+    let search_input = document.querySelector("#search_input");
+
+    search_input.addEventListener("keypress", function(event) {
+      if (event.key === "Enter") {
+        document.getElementById("search_button").click();
+  }
+});
+
+    clipboard = document.createElement("div");
+    clipboard.setAttribute("class", "zero-clipboard");
+    clipbutton = clipboard.appendChild(document.createElement("button"));
+    clipbutton.setAttribute("class", "btn-clipboard");
+    clipbutton.setAttribute("data-clipboard-target", "#pt_info");
+    clipbutton.innerText = "复制";
+
+    function search() {
+      query = search_input.value;
+      results = [];
+      url = 'api/search?query=' + query;
+      
+      xhttp.open("GET", url, false);
+      xhttp.send();
+      results = JSON.parse(xhttp.responseText);
+
+      if (!results.length) {
+        alert("找不到！");
+        return;
+      } else {
+        let result = document.querySelector('#result');
+        result.replaceChildren(document.createElement("p").innerText = "请选择结果");
+        table = result.appendChild(document.createElement("table"));
+        let tr1 = table.appendChild(document.createElement("tr"));
+        let tr2 = table.appendChild(document.createElement("tr"));
+        for (i of results.slice(0, 5)) {
+          poster = tr1.appendChild(document.createElement("td")).appendChild(document.createElement("img")); 
+          poster.src = i.poster;
+
+          text = tr2.appendChild(document.createElement("td"));
+          text.innerText = i.name + '  ' + i.date;
+          choice = document.createElement("input");
+          choice.type = "radio";
+          choice.name = "result_choice";
+          choice.value = i.cat+i.id;
+          text.prepend(choice);
+        }
+        button = result.appendChild(document.createElement("input"));
+        button.type = "button";
+        button.value = "确定";
+        button.setAttribute('onclick', 'choose_result()');
+      }
+    }
+
+  function choose_result() {
+    result = document.querySelector('#result');
+    results = document.getElementsByName("result_choice")
+    for (i of results) {
+      if (i.checked) {
+        cat = i.value.match(/\D+/);
+        id = i.value.match(/\d+/);
+        url = `api/detail?cat=${cat}&id=${id}`
+        xhttp.open("GET", url, false);
+        xhttp.send();
+        detail = JSON.parse(xhttp.responseText);
+        if (detail.cat == 'movie') {
+        info = detail.info;
+        textbox = document.createElement("textarea", id="pt_info");
+        textbox.rows = 30;
+        result.replaceChildren(textbox);
+        textbox.value = info;
+        result.appendChild(clipboard);
+        return;
+        } else {
+          result.replaceChildren(document.createElement("p").innerText = "请选择海报");
+          table = result.appendChild(document.createElement("table"));
+          tr1 = table.appendChild(document.createElement("tr"));
+          tr2 = table.appendChild(document.createElement("tr"));
+          for (i of detail.poster.slice(-5)) {
+            if (!i.path) {
+              break;
+            }
+            poster = tr1.appendChild(document.createElement("td")).appendChild(document.createElement("img")); 
+            poster.src = i.path;
+
+            text = tr2.appendChild(document.createElement("td"));
+            text.innerText = i.name;
+            choice = document.createElement("input");
+            choice.type = "radio";
+            choice.name = "poster_choice";
+            choice.value = detail.poster.indexOf(i);
+            text.prepend(choice);
+          }
+          button = result.appendChild(document.createElement("input"));
+          button.type = "button";
+          button.value = "确定";
+          button.onclick = function () {
+            results = document.getElementsByName("poster_choice");
+            for (i of results) {
+              if (i.checked) {
+                info = `[img]${detail.poster[i.value].path}[/img]`;
+                info += detail.info;
+                textbox = document.createElement("textarea", id="pt_info");
+                textbox.rows = 30;
+                result.replaceChildren(textbox);
+                textbox.value = info;
+                result.appendChild(clipboard);
+                return;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  </script>
+</body>
