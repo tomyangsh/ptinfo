@@ -90,22 +90,26 @@
         alert("找不到！");
         return;
       } else {
-        let result = document.querySelector('#result');
+        result = document.querySelector('#result');
         result.replaceChildren(document.createElement("p").innerText = "请选择结果");
         table = result.appendChild(document.createElement("table"));
-        let tr1 = table.appendChild(document.createElement("tr"));
-        let tr2 = table.appendChild(document.createElement("tr"));
-        for (i of results.slice(0, 5)) {
+        tr1 = table.appendChild(document.createElement("tr"));
+        tr2 = table.appendChild(document.createElement("tr"));
+        for (i of results.slice(0, 10)) {
           poster = tr1.appendChild(document.createElement("td")).appendChild(document.createElement("img")); 
           poster.src = i.poster;
 
           text = tr2.appendChild(document.createElement("td"));
-          text.innerText = i.name + '  ' + i.date;
+          text.innerText = i.name + '  ' + i.date.slice(0, 4);
           choice = document.createElement("input");
           choice.type = "radio";
           choice.name = "result_choice";
           choice.value = i.cat+i.id;
           text.prepend(choice);
+          if (!(tr1.childElementCount % 5)) {
+            tr1 = table.appendChild(document.createElement("tr"));
+            tr2 = table.appendChild(document.createElement("tr"));
+          }
         }
         button = result.appendChild(document.createElement("input"));
         button.type = "button";
@@ -127,7 +131,8 @@
         detail = JSON.parse(xhttp.responseText);
         if (detail.cat == 'movie') {
         info = detail.info;
-        textbox = document.createElement("textarea", id="pt_info");
+        textbox = document.createElement("textarea");
+        textbox.id = "pt_info";
         textbox.rows = 30;
         result.replaceChildren(textbox);
         textbox.value = info;
@@ -138,9 +143,9 @@
           table = result.appendChild(document.createElement("table"));
           tr1 = table.appendChild(document.createElement("tr"));
           tr2 = table.appendChild(document.createElement("tr"));
-          for (i of detail.poster.slice(-5)) {
+          for (i of detail.poster) {
             if (!i.path) {
-              break;
+              continue;
             }
             poster = tr1.appendChild(document.createElement("td")).appendChild(document.createElement("img")); 
             poster.src = i.path;
@@ -152,6 +157,10 @@
             choice.name = "poster_choice";
             choice.value = detail.poster.indexOf(i);
             text.prepend(choice);
+            if (!(tr1.childElementCount % 5)) {
+              tr1 = table.appendChild(document.createElement("tr"));
+              tr2 = table.appendChild(document.createElement("tr"));
+            }
           }
           button = result.appendChild(document.createElement("input"));
           button.type = "button";
@@ -160,9 +169,10 @@
             results = document.getElementsByName("poster_choice");
             for (i of results) {
               if (i.checked) {
-                info = `[img]${detail.poster[i.value].path}[/img]`;
+                info = `[img]${detail.poster[i.value].path}[/img]\n`;
                 info += detail.info;
-                textbox = document.createElement("textarea", id="pt_info");
+                textbox = document.createElement("textarea");
+                textbox.id = "pt_info";
                 textbox.rows = 30;
                 result.replaceChildren(textbox);
                 textbox.value = info;

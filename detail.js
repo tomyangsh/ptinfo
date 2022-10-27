@@ -43,7 +43,7 @@ module.exports = async (cat, id, res) => {
       }
     }).then(async (resp) => {
       let data = resp.data;
-      if (i.poster_path) {
+      if (data.poster_path) {
           poster = `https://image.tmdb.org/t/p/original${data.poster_path}`;
         } else { poster = ''}
       
