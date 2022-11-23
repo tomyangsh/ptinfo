@@ -96,6 +96,9 @@
         tr1 = table.appendChild(document.createElement("tr"));
         tr2 = table.appendChild(document.createElement("tr"));
         for (i of results.slice(0, 10)) {
+          if (!i.date) {
+            continue;
+          }
           poster = tr1.appendChild(document.createElement("td")).appendChild(document.createElement("img")); 
           poster.src = i.poster;
 
