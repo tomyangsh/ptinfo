@@ -2,6 +2,7 @@ const axios = require('axios');
 const redis = require('redis');
 const client = redis.createClient();
 client.connect();
+module.exports.redis = client;
 
 const fs = require('fs');
 const lang_dic = JSON.parse(fs.readFileSync('lang.json'));
@@ -28,7 +29,7 @@ async function zh_name(id) {
 }
 
 
-module.exports = async (cat, id, res) => {
+module.exports.get_detail = async (cat, id, res) => {
   let ptinfo = JSON.parse(await client.get(cat+id));
   if (ptinfo) {
     res.send(ptinfo);
