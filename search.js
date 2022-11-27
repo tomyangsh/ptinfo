@@ -5,7 +5,8 @@ module.exports = (query, res) => {
     params: {
       query: query,
       language: 'zh-cn',
-      api_key: 'f090bb54758cabf231fb605d3e3e0468'
+      api_key: 'f090bb54758cabf231fb605d3e3e0468',
+      include_adult: 'true'
     }
   }).then(resp => {
     let data = resp.data;
